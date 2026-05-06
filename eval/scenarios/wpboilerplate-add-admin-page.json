@@ -1,0 +1,22 @@
+{
+  "name": "Add a new admin page to a WPBoilerplate plugin",
+  "skills": ["wpboilerplate-plugin-boilerplate"],
+  "query": "Add a new admin page called 'Settings' as a submenu under the existing plugin menu. It should have its own PHP class, render a simple form, and follow the boilerplate hook registration pattern.",
+  "expected_behavior": [
+    "Step 1: Run detect_wpboilerplate.mjs to confirm isWPBoilerplate: true and read the namespace prefix",
+    "Step 2: Consult references/structure.md to confirm admin screen classes belong under admin/Partials/",
+    "Step 3: Create admin/Partials/Settings.php with namespace WordPress_Plugin_Boilerplate\\Admin\\Partials",
+    "Step 4: Add add_submenu_page() inside a method (e.g. add_page()), NOT inside __construct()",
+    "Step 5: Consult references/admin.md for the instantiation + Loader registration pattern",
+    "Step 6: In includes/Main.php::define_admin_hooks(), instantiate the new class and register the hook via $this->loader->add_action('admin_menu', $settings, 'add_page')",
+    "Step 7: Run composer dump-autoload",
+    "Step 8: Verify no direct add_action() calls appear in the new class constructor"
+  ],
+  "success_criteria": [
+    "New class is created under admin/Partials/ with the correct namespace",
+    "Hook is registered through $this->loader->add_action(), not directly",
+    "Instantiation happens in define_admin_hooks(), not in a constructor",
+    "No direct add_action() or add_filter() calls inside class constructors",
+    "composer dump-autoload is mentioned or run"
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Add a new Gutenberg block",
+  "skills": ["wpboilerplate-plugin-boilerplate"],
+  "query": "Add a new Gutenberg block called 'my-plugin/promo-banner'. The block should have an editor view (index.js) and a frontend view script (view.js).",
+  "expected_behavior": [
+    "Step 1: Run detect_wpboilerplate.mjs to confirm isWPBoilerplate: true and that build artifacts exist",
+    "Step 2: Consult references/build-system.md to understand that src/blocks/**/block.json is auto-discovered by webpack",
+    "Step 3: Create src/blocks/promo-banner/block.json with name 'my-plugin/promo-banner' and appropriate editorScript/viewScript fields",
+    "Step 4: Create src/blocks/promo-banner/index.js (editor script) and src/blocks/promo-banner/view.js (frontend view)",
+    "Step 5: Run npm run build — webpack discovers the block automatically via block.json; no manual webpack.config.js edit is needed",
+    "Step 6: Confirm build/blocks/promo-banner/index.js and view.js are generated",
+    "Step 7: Do NOT manually enqueue block assets in PHP — block.json and wp_register_block_type handle registration"
+  ],
+  "success_criteria": [
+    "Block files are created under src/blocks/, not directly in build/",
+    "block.json is present with the correct block name",
+    "webpack.config.js is NOT manually edited for a standard block (auto-discovered)",
+    "npm run build is run to compile the block",
+    "Block assets are not manually enqueued in PHP Admin\\Main or Public\\Main"
+  ]
+}

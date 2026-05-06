@@ -1,0 +1,21 @@
+{
+  "name": "Add a new plugin constant",
+  "skills": ["wpboilerplate-plugin-boilerplate"],
+  "query": "Add a constant called MY_PLUGIN_API_URL that holds the REST API base URL for the plugin. Make sure it follows the boilerplate convention for constant placement.",
+  "expected_behavior": [
+    "Step 1: Run detect_wpboilerplate.mjs to confirm isWPBoilerplate: true",
+    "Step 2: Consult references/boot-flow.md to locate where constants are defined",
+    "Step 3: Open includes/Main.php and find the define_constants() method",
+    "Step 4: Add the new constant using the existing private define() guard: $this->define('MY_PLUGIN_API_URL', 'https://...')",
+    "Step 5: Append the new constant below the existing block — do not alter any existing define() calls",
+    "Step 6: Do NOT add the constant to the bootstrap file (wordpress-plugin-boilerplate.php)",
+    "Step 7: Do NOT use PHP's define() directly — use the private $this->define() wrapper"
+  ],
+  "success_criteria": [
+    "Constant is defined inside includes/Main.php::define_constants() only",
+    "Uses the private $this->define($name, $value) guard pattern",
+    "Not added to the bootstrap file",
+    "Not defined in any other class or file",
+    "Existing constant definitions are not modified"
+  ]
+}

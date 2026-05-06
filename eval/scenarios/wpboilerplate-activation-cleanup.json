@@ -1,0 +1,21 @@
+{
+  "name": "Activation creates table; uninstall removes all data; deactivation does nothing destructive",
+  "skills": ["wpboilerplate-plugin-boilerplate"],
+  "query": "On plugin activation, create a custom database table 'my_plugin_log'. On uninstall (when the plugin is deleted), drop the table and delete all plugin options. On deactivation, do not remove any data.",
+  "expected_behavior": [
+    "Step 1: Run detect_wpboilerplate.mjs to confirm isWPBoilerplate: true",
+    "Step 2: Consult references/lifecycle.md to understand where each lifecycle action belongs",
+    "Step 3: In includes/Activator.php::activate(), add $wpdb table creation logic and dbDelta() call",
+    "Step 4: In includes/Deactivator.php::deactivate(), add only lightweight cleanup — do NOT drop the table or delete options",
+    "Step 5: In uninstall.php (after the WP_UNINSTALL_PLUGIN guard), add $wpdb->query DROP TABLE and delete_option() calls",
+    "Step 6: Confirm uninstall.php already has: if ( ! defined('WP_UNINSTALL_PLUGIN') ) exit;",
+    "Step 7: Do NOT add data deletion to the deactivation hook"
+  ],
+  "success_criteria": [
+    "Table creation is in Activator::activate(), not in Deactivator or uninstall.php",
+    "Deactivator::deactivate() contains only lightweight cleanup (cron clearing, transients) — no data deletion",
+    "Data removal (DROP TABLE, delete_option) is in uninstall.php only",
+    "uninstall.php retains the WP_UNINSTALL_PLUGIN guard",
+    "Clear separation between deactivation (reversible) and uninstall (destructive)"
+  ]
+}

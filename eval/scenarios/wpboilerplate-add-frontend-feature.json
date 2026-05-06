@@ -1,0 +1,24 @@
+{
+  "name": "Add a frontend shortcode with its own CSS and JS",
+  "skills": ["wpboilerplate-plugin-boilerplate"],
+  "query": "Add a [promo_banner] shortcode that renders a frontend widget. The widget needs its own stylesheet and JavaScript file. Follow the boilerplate pattern for public-facing code.",
+  "expected_behavior": [
+    "Step 1: Run detect_wpboilerplate.mjs to confirm isWPBoilerplate: true",
+    "Step 2: Consult references/public.md to confirm all frontend classes belong under public/ with namespace ...\\Public",
+    "Step 3: Create public/PromoBanner.php with namespace WordPress_Plugin_Boilerplate\\Public",
+    "Step 4: Add source files src/js/promo-banner.js and src/scss/promo-banner.scss",
+    "Step 5: Consult references/build-system.md; add the new entry point to webpack.config.js entry: block",
+    "Step 6: Run npm run build to generate build/js/promo-banner.js and build/js/promo-banner.asset.php",
+    "Step 7: In PromoBanner enqueue method, read version and dependencies from build/js/promo-banner.asset.php — never hardcode",
+    "Step 8: In includes/Main.php::define_public_hooks(), instantiate PromoBanner and register hooks via Loader",
+    "Step 9: Run composer dump-autoload"
+  ],
+  "success_criteria": [
+    "New class is under public/ with correct namespace",
+    "Source JS and SCSS go in src/, not build/",
+    "Asset version and dependencies read from *.asset.php manifest — no hardcoded version strings",
+    "Hook registered via $this->loader->add_action(), not directly",
+    "Instantiation happens in define_public_hooks()",
+    "composer dump-autoload is mentioned or run"
+  ]
+}
