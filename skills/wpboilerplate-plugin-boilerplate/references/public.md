@@ -45,6 +45,34 @@ Source files: `src/js/frontend.js` (stub) and `src/scss/frontend.scss`.
 - To conditionally enqueue (e.g., only on a specific post type), wrap `wp_enqueue_*` calls
   inside an `is_*()` check inside the hooked method — do not change the hook itself.
 
+⚠️ **PHP fatal if build not run:** `Public\Main::__construct()` `include`s manifest files
+directly. Missing `build/` artifacts cause a PHP fatal on every front-end page load, not a 404.
+
+## Passing PHP data to frontend JS (wp_localize_script)
+
+After enqueuing a script, attach PHP data with `wp_localize_script`:
+
+```php
+public function enqueue_scripts() {
+    wp_enqueue_script(
+        $this->plugin_name,
+        \WORDPRESS_PLUGIN_BOILERPLATE_PLUGIN_URL . 'build/js/frontend.js',
+        $this->js_asset_file['dependencies'],
+        $this->js_asset_file['version'],
+        true
+    );
+    wp_localize_script(
+        $this->plugin_name,
+        'myPlugin',               // JS global object name
+        [
+            'ajaxUrl' => admin_url( 'admin-ajax.php' ),
+            'nonce'   => wp_create_nonce( 'my_plugin_nonce' ),
+            'i18n'    => [ 'loading' => __( 'Loading…', 'my-plugin' ) ],
+        ]
+    );
+}
+```
+
 ## Frontend templates
 
 Place PHP template partials in `public/partials/`. Load them with `include` or `get_template_part()`

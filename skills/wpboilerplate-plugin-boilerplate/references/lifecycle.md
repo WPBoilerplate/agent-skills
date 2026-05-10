@@ -4,15 +4,39 @@
 
 Called via `register_activation_hook` in the bootstrap. Currently an empty static stub.
 
+> **Important:** The bootstrap wires activation via a **namespaced function**, not a class method:
+> ```php
+> function wordpress_plugin_boilerplate_activate() {
+>     require_once plugin_dir_path( __FILE__ ) . 'includes/Activator.php';
+>     Includes\Activator::activate();
+> }
+> register_activation_hook( __FILE__, 'WordPress_Plugin_Boilerplate\wordpress_plugin_boilerplate_activate' );
+> ```
+> The Autoloader is not yet registered at hook-registration time, so the class file is
+> `require_once`d manually. Do not refactor this to an instance method or rely on the autoloader here.
+
 Add here: database table creation, default option values, custom role/capability setup,
 flush rewrite rules (only if CPTs or rewrite rules are registered on activation).
 
 ```php
 public static function activate() {
-    // Example: create a custom table
     global $wpdb;
     $wpdb->query( "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}my_plugin_data (...)" );
     add_option( 'my_plugin_version', MY_PLUGIN_VERSION );
+}
+```
+
+### Database version migrations
+
+Use an option to track the installed schema version and run upgrades idempotently:
+
+```php
+public static function activate() {
+    $installed = get_option( 'my_plugin_db_version', '0.0.0' );
+    if ( version_compare( $installed, '1.1.0', '<' ) ) {
+        // run migration SQL
+    }
+    update_option( 'my_plugin_db_version', MY_PLUGIN_VERSION );
 }
 ```
 

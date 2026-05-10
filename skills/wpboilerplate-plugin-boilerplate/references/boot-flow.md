@@ -68,4 +68,28 @@ add_filter( 'wordpress-plugin-boilerplate-load', '__return_false' );
 
 This filter runs inside `load_hooks()` before any admin or public hooks are registered.
 
+## Loader API
+
+`$this->loader` is the `Includes\Loader` singleton. Both actions and filters use the same signature:
+
+```php
+$this->loader->add_action( $hook, $component, $callback, $priority = 10, $accepted_args = 1 );
+$this->loader->add_filter( $hook, $component, $callback, $priority = 10, $accepted_args = 1 );
+```
+
+All four of these calls are equivalent and correct — use whichever fits the WordPress hook type:
+
+```php
+// Action (no return value)
+$this->loader->add_action( 'admin_menu', $menu_obj, 'register_menus' );
+
+// Filter (must return a value in the callback)
+$this->loader->add_filter( 'the_content', $content_obj, 'modify_content' );
+
+// Custom priority and arg count
+$this->loader->add_action( 'plugin_action_links', $menu_obj, 'plugin_action_links', 1000, 2 );
+```
+
+Never call `add_action()` or `add_filter()` directly in any class — always go through the Loader.
+
 - Upstream reference: `https://github.com/WPBoilerplate/wordpress-plugin-boilerplate/blob/main/includes/Main.php`

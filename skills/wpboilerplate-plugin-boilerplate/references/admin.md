@@ -50,4 +50,58 @@ All hooks must be registered through the Loader.
 Add an entry to `webpack.config.js`, then enqueue it in `Admin\Main` (or a new class) using
 the sibling `*.asset.php` manifest. Never hardcode version strings.
 
+See `build-system.md` for the full 5-step workflow with diffs.
+
+⚠️ **PHP fatal if build not run:** `Admin\Main::__construct()` `include`s the manifest files
+directly. Missing `build/` artifacts cause a PHP fatal on every admin page load, not a 404.
+
+## Conditional per-screen enqueuing
+
+To load assets only on a specific admin screen, guard the enqueue call with `get_current_screen()`:
+
+```php
+public function enqueue_scripts() {
+    $screen = get_current_screen();
+    if ( ! $screen || 'toplevel_page_my-plugin' !== $screen->id ) {
+        return;
+    }
+    wp_enqueue_script( ... );
+}
+```
+
+Call `get_current_screen()` inside the hooked method — never in the constructor.
+
+## Passing PHP data to admin JS (wp_localize_script)
+
+After enqueuing a script, use `wp_localize_script` to attach PHP data:
+
+```php
+public function enqueue_scripts() {
+    wp_enqueue_script(
+        $this->plugin_name,
+        \WORDPRESS_PLUGIN_BOILERPLATE_PLUGIN_URL . 'build/js/backend.js',
+        $this->js_asset_file['dependencies'],
+        $this->js_asset_file['version'],
+        true
+    );
+    wp_localize_script(
+        $this->plugin_name,
+        'myPluginAdmin',          // JS global object name
+        [
+            'ajaxUrl' => admin_url( 'admin-ajax.php' ),
+            'nonce'   => wp_create_nonce( 'my_plugin_nonce' ),
+        ]
+    );
+}
+```
+
+In JS:
+
+```js
+fetch( myPluginAdmin.ajaxUrl, {
+    method: 'POST',
+    body: new URLSearchParams({ action: 'my_action', nonce: myPluginAdmin.nonce }),
+} );
+```
+
 - Upstream reference: `https://github.com/WPBoilerplate/wordpress-plugin-boilerplate/blob/main/admin/Main.php`
