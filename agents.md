@@ -146,6 +146,25 @@ node shared/scripts/skillpack-install.mjs --dest=../my-plugin --targets=claude,c
 4. Run `node skills/wp-plugin-development/scripts/test-skill.mjs` to confirm no regressions.
 5. Bump the `compatibility:` frontmatter if the WordPress or PHP version target changed.
 
+### Package strategy enforcement
+
+All plugins built from this boilerplate should prefer `@wordpress/*` packages over
+external equivalents. Enforce this with the `wp-packages-strategy` skill:
+
+```yaml
+package_strategy:
+  prefer_wordpress_packages: true
+  validation_script: "node skills/wp-packages-strategy/scripts/validate-packages.mjs --dir=."
+  required_skills:
+    - wp-packages-strategy
+```
+
+Run before shipping any JS-heavy feature:
+
+```bash
+node skills/wp-packages-strategy/scripts/validate-packages.mjs --dir=.
+```
+
 ### When adding a dependency or changing repo structure
 
 Update this `agents.md` file to reflect the change so future agents have accurate information.

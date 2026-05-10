@@ -20,6 +20,7 @@ Agent Skills solve this by giving AI assistants **expert-level WPBoilerplate kno
 | Skill | What it teaches |
 |---|---|
 | **wp-plugin-development** | Hooks via the Loader singleton, PSR-4 namespace layout, asset manifests, admin pages, lifecycle hooks, and the `@wordpress/scripts` build pipeline |
+| **wp-packages-strategy** | Prioritize `@wordpress/*` packages over external deps; detect React conflicts; webpack aliasing; `validate-packages.mjs` script |
 
 ## Quick Start
 
