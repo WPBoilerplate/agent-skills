@@ -1,6 +1,6 @@
 {
   "name": "Add a new admin page to a WPBoilerplate plugin",
-  "skills": ["wpboilerplate-plugin-boilerplate"],
+  "skills": ["wp-plugin-development"],
   "query": "Add a new admin page called 'Settings' as a submenu under the existing plugin menu. It should have its own PHP class, render a simple form, and follow the boilerplate hook registration pattern.",
   "expected_behavior": [
     "Step 1: Run detect_wpboilerplate.mjs to confirm isWPBoilerplate: true and read the namespace prefix",

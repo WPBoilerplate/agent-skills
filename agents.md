@@ -96,7 +96,7 @@ exit 0 on success. No third-party dependencies.
 
 4. **Add a detector script** under `scripts/detect_<skill-name>.mjs` that confirms the skill
    applies to the current repo and exits with a JSON report. See
-   `skills/wpboilerplate-plugin-boilerplate/scripts/detect_wpboilerplate.mjs` for the pattern.
+   `skills/wp-plugin-development/scripts/detect_wpboilerplate.mjs` for the pattern.
 
 5. **Add a test script** under `scripts/test-skill.mjs` that validates the skill structure and
    detector output. It must exit 0 when all tests pass, exit 1 on failure.
@@ -141,9 +141,9 @@ node shared/scripts/skillpack-install.mjs --dest=../my-plugin --targets=claude,c
 1. Check [WPBoilerplate/wordpress-plugin-boilerplate](https://github.com/WPBoilerplate/wordpress-plugin-boilerplate)
    for changes to `includes/Main.php`, `admin/Main.php`, `public/Main.php`, `webpack.config.js`,
    `composer.json`, and `package.json`.
-2. Update the affected reference files in `skills/wpboilerplate-plugin-boilerplate/references/`.
+2. Update the affected reference files in `skills/wp-plugin-development/references/`.
 3. Update upstream reference links if file paths changed.
-4. Run `node skills/wpboilerplate-plugin-boilerplate/scripts/test-skill.mjs` to confirm no regressions.
+4. Run `node skills/wp-plugin-development/scripts/test-skill.mjs` to confirm no regressions.
 5. Bump the `compatibility:` frontmatter if the WordPress or PHP version target changed.
 
 ### When adding a dependency or changing repo structure

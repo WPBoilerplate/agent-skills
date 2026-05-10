@@ -38,10 +38,10 @@ function usage() {
       "  node shared/scripts/skillpack-install.mjs --targets=cursor-global",
       "",
       "  # Install specific skills globally",
-      "  node shared/scripts/skillpack-install.mjs --global --skills=wpboilerplate-plugin-boilerplate",
+      "  node shared/scripts/skillpack-install.mjs --global --skills=wp-plugin-development",
       "",
       "  # Install to project with specific skills",
-      "  node shared/scripts/skillpack-install.mjs --dest=../my-repo --targets=claude,cursor --skills=wpboilerplate-plugin-boilerplate",
+      "  node shared/scripts/skillpack-install.mjs --dest=../my-repo --targets=claude,cursor --skills=wp-plugin-development",
       "",
     ].join("\n")
   );

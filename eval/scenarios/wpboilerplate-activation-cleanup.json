@@ -1,6 +1,6 @@
 {
   "name": "Activation creates table; uninstall removes all data; deactivation does nothing destructive",
-  "skills": ["wpboilerplate-plugin-boilerplate"],
+  "skills": ["wp-plugin-development"],
   "query": "On plugin activation, create a custom database table 'my_plugin_log'. On uninstall (when the plugin is deleted), drop the table and delete all plugin options. On deactivation, do not remove any data.",
   "expected_behavior": [
     "Step 1: Run detect_wpboilerplate.mjs to confirm isWPBoilerplate: true",

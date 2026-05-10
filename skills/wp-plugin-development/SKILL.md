@@ -1,5 +1,5 @@
 ---
-name: wpboilerplate-plugin-boilerplate
+name: wp-plugin-development
 description: "Use when working in plugins scaffolded from WPBoilerplate/wordpress-plugin-boilerplate (main branch): adding hooks via the Loader singleton, defining constants in Includes\\Main, adding admin pages under Admin\\Partials, enqueuing assets from build/*.asset.php manifests, and respecting the PSR-4 namespace map (Includes/Admin/Public)."
 compatibility: "Targets WordPress 6.9+ (PHP 7.4+ per composer.json). Assumes @wordpress/scripts build pipeline and the namespaced PSR-4 layout from the main branch (not the legacy master branch)."
 ---

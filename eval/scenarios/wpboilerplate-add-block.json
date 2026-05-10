@@ -1,6 +1,6 @@
 {
   "name": "Add a new Gutenberg block",
-  "skills": ["wpboilerplate-plugin-boilerplate"],
+  "skills": ["wp-plugin-development"],
   "query": "Add a new Gutenberg block called 'my-plugin/promo-banner'. The block should have an editor view (index.js) and a frontend view script (view.js).",
   "expected_behavior": [
     "Step 1: Run detect_wpboilerplate.mjs to confirm isWPBoilerplate: true and that build artifacts exist",

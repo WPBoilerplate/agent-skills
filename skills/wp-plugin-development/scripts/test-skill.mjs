@@ -1,8 +1,8 @@
 /**
- * Deterministic test runner for the wpboilerplate-plugin-boilerplate skill.
+ * Deterministic test runner for the wp-plugin-development skill.
  *
  * Usage (run from repo root):
- *   node skills/wpboilerplate-plugin-boilerplate/scripts/test-skill.mjs
+ *   node skills/wp-plugin-development/scripts/test-skill.mjs
  *
  * Exits 0 if all tests pass, exits 1 if any fail.
  * No third-party dependencies — uses only node:fs, node:path, node:child_process.
@@ -13,7 +13,7 @@ import path from "node:path";
 import { spawnSync } from "node:child_process";
 
 const repoRoot = process.cwd();
-const skillDir = path.join(repoRoot, "skills", "wpboilerplate-plugin-boilerplate");
+const skillDir = path.join(repoRoot, "skills", "wp-plugin-development");
 
 let passed = 0;
 let failed = 0;
@@ -71,10 +71,10 @@ if (fmMatch) {
 if (fmMatch) {
   const nameMatch = fmMatch[1].match(/^\s*name\s*:\s*(.+)/m);
   const nameVal = nameMatch ? nameMatch[1].replace(/^["']|["']$/g, "").trim() : null;
-  if (nameVal === "wpboilerplate-plugin-boilerplate") {
+  if (nameVal === "wp-plugin-development") {
     pass("T03", `Frontmatter name is correct ('${nameVal}')`);
   } else {
-    fail("T03", `Frontmatter name is '${nameVal}', expected 'wpboilerplate-plugin-boilerplate'`);
+    fail("T03", `Frontmatter name is '${nameVal}', expected 'wp-plugin-development'`);
   }
 }
 
@@ -271,7 +271,7 @@ if (schemaErrors.length === 0) {
 // ---------------------------------------------------------------------------
 const skillSetPath = path.join(repoRoot, "docs", "skill-set-v1.md");
 const skillSet = read(skillSetPath) ?? "";
-if (skillSet.includes("wpboilerplate-plugin-boilerplate")) {
+if (skillSet.includes("wp-plugin-development")) {
   pass("T12", "Skill is registered in docs/skill-set-v1.md");
 } else {
   fail("T12", "Skill name not found in docs/skill-set-v1.md");

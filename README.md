@@ -19,7 +19,7 @@ Agent Skills solve this by giving AI assistants **expert-level WPBoilerplate kno
 
 | Skill | What it teaches |
 |---|---|
-| **wpboilerplate-plugin-boilerplate** | Hooks via the Loader singleton, PSR-4 namespace layout, asset manifests, admin pages, lifecycle hooks, and the `@wordpress/scripts` build pipeline |
+| **wp-plugin-development** | Hooks via the Loader singleton, PSR-4 namespace layout, asset manifests, admin pages, lifecycle hooks, and the `@wordpress/scripts` build pipeline |
 
 ## Quick Start
 
@@ -37,7 +37,7 @@ node shared/scripts/skillpack-build.mjs --clean
 node shared/scripts/skillpack-install.mjs --global
 
 # Or install a specific skill only
-node shared/scripts/skillpack-install.mjs --global --skills=wpboilerplate-plugin-boilerplate
+node shared/scripts/skillpack-install.mjs --global --skills=wp-plugin-development
 ```
 
 This installs skills to `~/.claude/skills/` where Claude Code will automatically discover them.
@@ -80,7 +80,7 @@ node shared/scripts/skillpack-install.mjs --list
 node shared/scripts/skillpack-install.mjs --global --dry-run
 
 # Install specific skills to a project
-node shared/scripts/skillpack-install.mjs --dest=../my-plugin --targets=claude,cursor --skills=wpboilerplate-plugin-boilerplate
+node shared/scripts/skillpack-install.mjs --dest=../my-plugin --targets=claude,cursor --skills=wp-plugin-development
 ```
 
 ### Manual installation

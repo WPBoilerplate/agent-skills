@@ -4,7 +4,15 @@
       "Bash(gh issue *)",
       "WebFetch(domain:api.github.com)",
       "WebFetch(domain:raw.githubusercontent.com)",
-      "Bash(curl *)"
+      "Bash(curl *)",
+      "WebFetch(domain:github.com)",
+      "Bash(node *)",
+      "Bash(git push *)",
+      "Bash(jq '.[] | select\\(.name == \"package.json\"\\) | .download_url' -r)",
+      "Bash(jq '.[] | .name' -r)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git *)"
     ]
   }
 }

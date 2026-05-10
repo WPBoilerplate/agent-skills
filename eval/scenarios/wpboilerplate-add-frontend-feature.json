@@ -1,6 +1,6 @@
 {
   "name": "Add a frontend shortcode with its own CSS and JS",
-  "skills": ["wpboilerplate-plugin-boilerplate"],
+  "skills": ["wp-plugin-development"],
   "query": "Add a [promo_banner] shortcode that renders a frontend widget. The widget needs its own stylesheet and JavaScript file. Follow the boilerplate pattern for public-facing code.",
   "expected_behavior": [
     "Step 1: Run detect_wpboilerplate.mjs to confirm isWPBoilerplate: true",

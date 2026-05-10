@@ -1,6 +1,6 @@
 {
   "name": "Add a new plugin constant",
-  "skills": ["wpboilerplate-plugin-boilerplate"],
+  "skills": ["wp-plugin-development"],
   "query": "Add a constant called MY_PLUGIN_API_URL that holds the REST API base URL for the plugin. Make sure it follows the boilerplate convention for constant placement.",
   "expected_behavior": [
     "Step 1: Run detect_wpboilerplate.mjs to confirm isWPBoilerplate: true",
