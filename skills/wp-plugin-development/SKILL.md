@@ -1,10 +1,10 @@
 ---
 name: wp-plugin-development
-description: "Use when working in plugins scaffolded from WPBoilerplate/wordpress-plugin-boilerplate (main branch): adding hooks via the Loader singleton, defining constants in Includes\\Main, adding admin pages under Admin\\Partials, enqueuing assets from build/*.asset.php manifests, and respecting the PSR-4 namespace map (Includes/Admin/Public)."
-compatibility: "Targets WordPress 6.9+ (PHP 7.4+ per composer.json). Assumes @wordpress/scripts build pipeline and the namespaced PSR-4 layout from the main branch (not the legacy master branch)."
+description: "Use when working in plugins scaffolded from WPBoilerplate/wordpress-plugin-boilerplate (main branch): hooks via the Loader singleton, PSR-4 namespace layout, security baseline (nonces/capabilities/escaping), settings API, REST endpoints, lifecycle, i18n, multisite, performance, and the @wordpress/scripts build pipeline."
+compatibility: "Targets WordPress 6.0+ (PHP 7.4+). Assumes @wordpress/scripts build pipeline and the namespaced PSR-4 layout from the main branch (not the legacy master branch)."
 ---
 
-# WPBoilerplate Plugin Boilerplate
+# WP Plugin Development (WPBoilerplate)
 
 ## When to use
 
@@ -18,6 +18,10 @@ Use this skill when working in a plugin scaffolded from
 - defining new plugin constants
 - adding activation, deactivation, or uninstall logic
 - adding or modifying i18n / text-domain loading
+- implementing settings pages and options
+- adding REST API endpoints
+- handling file uploads securely
+- ensuring multisite compatibility
 - refactoring existing code into the namespaced PSR-4 layout
 - adding new Gutenberg blocks or block styles
 - scaffolding a renamed copy via `init-plugin.sh`
@@ -28,6 +32,7 @@ Use this skill when working in a plugin scaffolded from
 - Whether `init-plugin.sh` has been run (affects namespace prefix and text domain).
 - Target WordPress + PHP versions (boilerplate requires PHP 7.4+).
 - Whether `build/` artifacts are present (`npm run build` has been run).
+- Whether the plugin must support multisite / network activation.
 
 ## Procedure
 
@@ -74,7 +79,7 @@ removes dev tooling (PHPCS, PHPStan) if you decline them during the interactive 
 
 See: `references/structure.md`
 
-### 2) Follow the boot flow; put constants in the right file
+### 2) Follow the boot flow; register hooks via the Loader
 
 - Only `WORDPRESS_PLUGIN_BOILERPLATE_PLUGIN_FILE` is defined in the bootstrap.
 - All other constants belong in `includes/Main.php::define_constants()` using the private
@@ -83,40 +88,94 @@ See: `references/structure.md`
   never with direct `add_action`/`add_filter` calls inside class constructors.
 - The `apply_filters('wordpress-plugin-boilerplate-load', true)` gate in `load_hooks()` is the
   supported kill switch for third-party integrations.
+- Hook naming convention: `{plugin-prefix}/{context}/{event}` (e.g. `myplugin/admin/before_render`).
+- Always return the value in filter callbacks; never `echo` inside a filter.
 
-See: `references/boot-flow.md`
+See: `references/boot-flow.md`, `references/hooks.md`
 
 ### 3) Add admin pages and enqueues correctly
 
 - Create new screen classes under `admin/Partials/` with namespace `...\Admin\Partials`.
 - Instantiate the class in `includes/Main.php::define_admin_hooks()`.
 - Register every hook through `$this->loader->add_action(...)` — never directly.
-- To add new admin assets, add entry points to `webpack.config.js` and enqueue via
-  `Admin\Main` methods using the `*.asset.php` manifest.
+- Enqueue assets only on the pages that need them (check `$screen->id`); never globally.
+- Add entry points to `webpack.config.js` and enqueue via `Admin\Main` using the `*.asset.php` manifest.
+- Follow notice and UX patterns: dismissible notices, no aggressive upsells, one top-level menu item.
 
-See: `references/admin.md`
+See: `references/admin.md`, `references/admin-ux.md`
 
 ### 4) Security baseline (always)
 
-Before shipping:
+Before shipping any feature:
 
-- Validate/sanitize input early; escape output late.
-- Use nonces to prevent CSRF and capability checks for authorization.
-- Avoid directly trusting `$_POST` / `$_GET`; use `wp_unslash()` and specific keys.
-- Use `$wpdb->prepare()` for SQL; avoid building SQL with string concatenation.
+- Validate/sanitize input early (`wp_unslash()` + `sanitize_*()`) — never trust `$_POST`/`$_GET` raw.
+- Escape output late and close to the point of output (`esc_html()`, `esc_attr()`, `esc_url()`, `wp_kses_post()`).
+- Nonce on every state-changing form and AJAX handler (`wp_nonce_field()` / `check_admin_referer()`).
+- Capability check before every admin action or data mutation (`current_user_can()`).
+- Use `$wpdb->prepare()` for SQL — never string concatenation.
+- Every `register_rest_route()` must have a `permission_callback`.
+
+Run the security scanner before committing:
+
+```bash
+node skills/wp-plugin-development/scripts/validate-security.mjs --dir=.
+```
 
 See: `references/security.md`
 
-### 5) Data storage, cron, migrations (if needed)
+### 5) Settings API
+
+- Register every option with `register_setting()` + a `sanitize_callback`.
+- Use `add_settings_section()` + `add_settings_field()` for the settings UI.
+- Option group: `{plugin_prefix}_options`. Always supply a default in `get_option('key', $default)`.
+- Store related settings as a single serialized array to avoid autoload bloat.
+- Set `autoload = false` for options not needed on every page load.
+
+See: `references/settings-api.md`
+
+### 6) Data storage, cron, migrations (if needed)
 
 - Prefer options (`get_option` / `update_option`) for small config; custom tables only if the data volume or query patterns make options impractical.
 - For custom tables, install via [`berlindb/core`](https://github.com/berlindb/core) as a Composer package — it provides query, schema, and row classes that wrap `$wpdb` safely and consistently.
 - For cron tasks, ensure idempotency (safe to run twice) and provide a manual run path via WP-CLI or an admin action.
 - For schema changes, write upgrade routines keyed on a stored schema version option; never assume the DB matches the current code.
 
-See: `references/data-and-cron.md`
+See: `references/lifecycle.md`, `references/performance.md`
 
-### 6) Add frontend code under public/
+### 7) REST API endpoints (if needed)
+
+- Register on `rest_api_init`; namespace format: `{plugin-prefix}/v1`.
+- Always provide `permission_callback` — never omit, never `__return_true` on mutating routes.
+- Sanitize all args via `sanitize_callback` in the route schema.
+- Return `WP_REST_Response` or `WP_Error`.
+
+Detect registered endpoints:
+
+```bash
+node skills/wp-plugin-development/scripts/detect-rest-endpoints.mjs --dir=.
+```
+
+See: `references/rest-api.md`
+
+### 8) Internationalization
+
+- Text domain must equal the plugin slug (directory name).
+- Load on `init` with `load_plugin_textdomain()` — not `plugins_loaded`.
+- Always escape after translating: `esc_html__()`, `esc_attr__()`, `esc_html_e()`. Never `echo __()`.
+- JS strings: `wp_set_script_translations()` + JSON file in `languages/`.
+
+See: `references/i18n.md`
+
+### 9) Multisite (if applicable)
+
+- Gate multisite-specific code with `is_multisite()`.
+- Use `get_site_option()` / `update_site_option()` for network-wide settings.
+- Always pair `switch_to_blog()` with `restore_current_blog()` in a `finally` block.
+- Handle both per-site and network activation in the activation hook.
+
+See: `references/multisite.md`
+
+### 10) Frontend code under public/
 
 - All frontend classes go under `public/` with namespace `...\Public`.
 - Instantiate in `includes/Main.php::define_public_hooks()` and register via the Loader.
@@ -125,62 +184,77 @@ See: `references/data-and-cron.md`
 
 See: `references/public.md`
 
-### 7) Lifecycle: Activator, Deactivator, uninstall, i18n
+### 11) Lifecycle: Activator, Deactivator, uninstall
 
 - Activation setup (tables, options, roles) → `Includes\Activator::activate()`.
 - Deactivation lightweight cleanup (cron, transients) → `Includes\Deactivator::deactivate()`.
 - Data removal (delete_option, drop tables) → `uninstall.php` only.
-- i18n is loaded on `init`, not `plugins_loaded` — do not move it.
+- On multisite: delete both site-level and network-level options in uninstall.
 
 See: `references/lifecycle.md`
 
-### 8) Build assets through @wordpress/scripts
+### 12) Build assets through @wordpress/scripts
 
 - Run `npm run build` (production) or `npm run start` (watch) before testing.
 - Standard JS/SCSS entries, custom blocks (`src/blocks/**/block.json`), and block stylesheets
   (`src/scss/blocks/core/`) are all picked up automatically by `webpack.config.js`.
 - Static assets (`src/media/`, `src/fonts/`) are copied to `build/` by CopyPlugin.
 
-**To add a new JS or CSS file**, follow this 5-step workflow (full diffs in the reference):
+**To add a new JS or CSS file**, follow this 5-step workflow:
 
 1. **Create** the source file in `src/js/<name>.js` and/or `src/scss/<name>.scss`.
-2. **Register** a new entry in `webpack.config.js` `entry:` object pointing at that source file.
-3. **Load the manifest** — in the constructor of `Admin\Main` (backend) or `Public\Main`
-   (frontend), add `include …build/js/<name>.asset.php` and/or `…build/css/<name>.asset.php`.
-4. **Enqueue** — call `wp_enqueue_script` / `wp_enqueue_style` inside `enqueue_scripts()` /
-   `enqueue_styles()` using the manifest arrays for dependencies and version. Never hardcode either.
-5. **Build** — run `npm run build` and confirm `build/js/<name>.js` + `build/js/<name>.asset.php`
-   (and/or their CSS equivalents) are present.
+2. **Register** a new entry in `webpack.config.js` `entry:` object.
+3. **Load the manifest** — add `include …build/js/<name>.asset.php` in the relevant `Main` constructor.
+4. **Enqueue** — use the manifest arrays for dependencies and version. Never hardcode either.
+5. **Build** — run `npm run build` and confirm `build/js/<name>.js` + `build/js/<name>.asset.php` are present.
 
-See: `references/build-system.md` → "Adding a new JS / CSS file — complete workflow"
+See: `references/build-system.md`
+
+## Pre-ship checklist
+
+Run these scripts from the plugin root before shipping:
+
+```bash
+# Structure validation
+node skills/wp-plugin-development/scripts/validate-structure.mjs --dir=.
+
+# Security scan
+node skills/wp-plugin-development/scripts/validate-security.mjs --dir=.
+
+# Deprecated function scan
+node skills/wp-plugin-development/scripts/detect-deprecations.mjs --dir=.
+
+# REST endpoint audit (exits 1 if any endpoint is missing permission_callback)
+node skills/wp-plugin-development/scripts/detect-rest-endpoints.mjs --dir=.
+```
 
 ## Verification
 
 - `composer dump-autoload` completes with no errors.
 - `npm run build` produces `*.asset.php` for every enqueued entry.
-- Plugin activates with no PHP fatals or notices.
+- Plugin activates with no PHP fatals or notices (`WP_DEBUG=true`).
 - Admin menu item appears at `/wp-admin/admin.php?page=<plugin-slug>`.
-- Frontend assets enqueue on the correct pages (check with Query Monitor or browser devtools).
+- Frontend assets enqueue only on the correct pages.
 - Settings save and read correctly (capability check + nonce enforced).
 - Uninstall removes all intended data — and nothing else.
-- `WORDPRESS_PLUGIN_BOILERPLATE_PLUGIN_URL` holds a URL, not a version string (known source bug —
-  the guard prevents a fatal; the first definition wins).
-- PHPCS passes: `./vendor/bin/phpcs`. The project uses **WordPress-Extra + WordPress-Docs + PHPCompatibility** standards (`phpcs.xml.dist`). Exclusions allow short array syntax and relax some doc-comment rules. `vendor/`, `node_modules/`, and `build/` are excluded. Minimum PHP target is 7.4. Dev packages required: `squizlabs/php_codesniffer`, `wp-coding-standards/wpcs`, `phpcompatibility/php-compatibility`, `dealerdirect/phpcodesniffer-composer-installer`.
-- PHPUnit / PHPCS repo lint passes (if present); JS build succeeds if the plugin ships assets.
+- `WORDPRESS_PLUGIN_BOILERPLATE_PLUGIN_URL` holds a URL, not a version string (known double-define bug — the guard prevents a fatal; first definition wins).
+- PHPCS passes: `./vendor/bin/phpcs` (WordPress-Extra + WordPress-Docs + PHPCompatibility).
+- PHPUnit passes (if present); JS build succeeds if the plugin ships assets.
+- All four pre-ship scripts above exit 0.
 
 ## Failure modes / debugging
 
-- **PHP fatal on every admin or frontend page load** — `build/*.asset.php` files are missing because `npm run build` has not been run. The constructors of `Admin\Main` and `Public\Main` `include` those manifests directly; a missing file is a PHP fatal, not a silent 404. Run `npm run build`.
-- **Class not found** — namespace mismatch in file path, or `composer dump-autoload` not run after adding the file.
-- **Constants double-defined PHP notice** — constant defined outside `define_constants()` without the guard; move it inside and use the private `define()` pattern.
-- **Hooks not firing** — hook registered with direct `add_action` instead of through the Loader, or `apply_filters('wordpress-plugin-boilerplate-load', true)` was filtered to `false`.
-- **Asset 404 after build** — check that `WORDPRESS_PLUGIN_BOILERPLATE_PLUGIN_URL` is correct (see known double-define bug in `boot-flow.md`).
-- **Activation hook not firing** — hook registered in the wrong scope (not at main-file root), wrong main file path, or plugin is network-activated (use `register_activation_hook` at top level of the main plugin file, not inside a class method called later).
-- **Activation / deactivation callback not running** — the bootstrap registers namespaced functions (`WordPress_Plugin_Boilerplate\wordpress_plugin_boilerplate_activate`), not class methods. The Autoloader is not active at that point; the class file is `require_once`d manually inside each function. Do not refactor these to instance methods.
-- **Settings not saving** — settings not registered with `register_setting()`, wrong option group name, missing capability check, or nonce failure. Confirm all four are correct before debugging further.
-- **Security regression** — nonce present but capability check missing (or vice-versa); or user input sanitized on save but not escaped on output. Always pair the two.
+- **PHP fatal on every page load** — `build/*.asset.php` missing; run `npm run build`.
+- **Class not found** — namespace mismatch in file path, or `composer dump-autoload` not run.
+- **Constants double-defined notice** — constant defined outside `define_constants()`; move inside and use the private `define()` guard.
+- **Hooks not firing** — registered with bare `add_action` instead of through the Loader, or `apply_filters('wordpress-plugin-boilerplate-load', true)` filtered to `false`.
+- **Asset 404 after build** — check `WORDPRESS_PLUGIN_BOILERPLATE_PLUGIN_URL` (see `boot-flow.md`).
+- **Activation hook not firing** — hook not registered at plugin file root scope; must be top-level, not inside a class constructor or `init` callback.
+- **Activation / deactivation callback not running** — bootstrap registers namespaced functions, not class methods; the Autoloader is not active at that point. Do not refactor these to instance methods.
+- **Settings not saving** — option not registered with `register_setting()`, wrong option group, missing capability, or nonce failure.
+- **Security regression** — nonce without capability check (or vice versa); input sanitized but output not escaped.
 - **Text-domain not loading** — `do_load_textdomain()` moved to `plugins_loaded`; it must stay on `init`.
-- **Vendor conflict / class not found in vendor** — run `composer install` then `composer dump-autoload`; Mozart may need to re-scope namespaces.
+- **Vendor conflict** — run `composer install` then `composer dump-autoload`; Mozart may need to re-scope namespaces.
 
 See: `references/debugging.md`
 
