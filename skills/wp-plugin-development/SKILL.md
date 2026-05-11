@@ -28,13 +28,6 @@ Use it for tasks such as:
 - adding new Gutenberg blocks or block styles
 - scaffolding a new plugin via `init-plugin.sh`
 
-## Inputs required
-
-- Plugin root path and slug.
-- Target WordPress + PHP versions (boilerplate requires PHP 7.4+).
-- Whether `build/` artifacts are present (`npm run build` has been run).
-- Whether the plugin must support multisite / network activation.
-
 ## Procedure
 
 ### 0) Rename the boilerplate (new plugins only)
@@ -134,7 +127,7 @@ See: `references/security.md`
 
 See: `references/settings-api.md`
 
-### 6) Data storage, cron, migrations (if needed)
+### 6) Data storage, cron, migrations
 
 - Prefer options (`get_option` / `update_option`) for small config; custom tables only if the data volume or query patterns make options impractical.
 - For custom tables, install via [`berlindb/core`](https://github.com/berlindb/core) as a Composer package — it provides query, schema, and row classes that wrap `$wpdb` safely and consistently.
@@ -143,7 +136,7 @@ See: `references/settings-api.md`
 
 See: `references/lifecycle.md`, `references/performance.md`
 
-### 7) REST API endpoints (if needed)
+### 7) REST API endpoints
 
 - Register on `rest_api_init`; namespace format: `{plugin-prefix}/v1`.
 - Always provide `permission_callback` — never omit, never `__return_true` on mutating routes.
@@ -167,7 +160,7 @@ See: `references/rest-api.md`
 
 See: `references/i18n.md`
 
-### 9) Multisite (if applicable)
+### 9) Multisite
 
 - Gate multisite-specific code with `is_multisite()`.
 - Use `get_site_option()` / `update_site_option()` for network-wide settings.
