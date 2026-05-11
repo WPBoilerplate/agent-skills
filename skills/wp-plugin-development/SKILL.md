@@ -1,16 +1,18 @@
 ---
 name: wp-plugin-development
-description: "Use when working in plugins scaffolded from WPBoilerplate/wordpress-plugin-boilerplate (main branch): hooks via the Loader singleton, PSR-4 namespace layout, security baseline (nonces/capabilities/escaping), settings API, REST endpoints, lifecycle, i18n, multisite, performance, and the @wordpress/scripts build pipeline."
-compatibility: "Targets WordPress 6.0+ (PHP 7.4+). Assumes @wordpress/scripts build pipeline and the namespaced PSR-4 layout from the main branch (not the legacy master branch)."
+description: "Use for all development work on plugins built with WPBoilerplate/wordpress-plugin-boilerplate: hooks via the Loader singleton, PSR-4 namespace layout, security baseline (nonces/capabilities/escaping), settings API, REST endpoints, lifecycle, i18n, multisite, performance, and the @wordpress/scripts build pipeline."
+compatibility: "WordPress 6.0+ (PHP 7.4+). Uses @wordpress/scripts build pipeline and the namespaced PSR-4 layout from the main branch."
 ---
 
 # WP Plugin Development (WPBoilerplate)
 
 ## When to use
 
-Use this skill when working in a plugin scaffolded from
-[WPBoilerplate/wordpress-plugin-boilerplate](https://github.com/WPBoilerplate/wordpress-plugin-boilerplate)
-(`main` branch), for tasks such as:
+This skill applies to **all development work** on plugins built with
+[WPBoilerplate/wordpress-plugin-boilerplate](https://github.com/WPBoilerplate/wordpress-plugin-boilerplate).
+Every plugin in this project uses this boilerplate — there is no detection step.
+
+Use it for tasks such as:
 
 - adding or moving WordPress hooks/actions/filters
 - registering admin pages, menus, or submenu pages
@@ -24,12 +26,11 @@ Use this skill when working in a plugin scaffolded from
 - ensuring multisite compatibility
 - refactoring existing code into the namespaced PSR-4 layout
 - adding new Gutenberg blocks or block styles
-- scaffolding a renamed copy via `init-plugin.sh`
+- scaffolding a new plugin via `init-plugin.sh`
 
 ## Inputs required
 
-- Plugin root path and slug (post-`init-plugin.sh` rename if applicable).
-- Whether `init-plugin.sh` has been run (affects namespace prefix and text domain).
+- Plugin root path and slug.
 - Target WordPress + PHP versions (boilerplate requires PHP 7.4+).
 - Whether `build/` artifacts are present (`npm run build` has been run).
 - Whether the plugin must support multisite / network activation.
