@@ -6,13 +6,14 @@
 // File is loaded by WordPress
 wordpress-plugin-boilerplate.php
   └─ define WORDPRESS_PLUGIN_BOILERPLATE_PLUGIN_FILE = __FILE__
+  └─ require includes/Main.php
   └─ register_activation_hook  → Includes\Activator::activate()
   └─ register_deactivation_hook → Includes\Deactivator::deactivate()
   └─ wordpress_plugin_boilerplate_run()
        └─ Main::instance()           // singleton; triggers __construct()
-            ├─ define_constants()    // all constants except PLUGIN_FILE
-            ├─ register_autoloader() // spl_autoload_register via Autoloader.php
-            ├─ load_composer_dependencies() // vendor/autoload.php + Mozart blocks
+            ├─ define_constants()    // all constants except PLUGIN_FILE (version hardcoded)
+            ├─ $this->plugin_dir     // set directly in constructor from PLUGIN_PATH constant
+            ├─ load_composer_dependencies() // conditionally loads vendor/autoload_packages.php
             ├─ load_dependencies()   // $this->loader = Loader::instance()
             ├─ set_locale()          // loader->add_action('init', $i18n, 'do_load_textdomain')
             └─ load_hooks()
@@ -51,12 +52,7 @@ Never add constants in the bootstrap file or in any other class.
 - `WORDPRESS_PLUGIN_BOILERPLATE_PLUGIN_URL`
 - `WORDPRESS_PLUGIN_BOILERPLATE_PLUGIN_NAME_SLUG`
 - `WORDPRESS_PLUGIN_BOILERPLATE_PLUGIN_NAME`
-- `WORDPRESS_PLUGIN_BOILERPLATE_VERSION` — read live from `get_plugin_data()`
-
-⚠️ **Known source bug**: `WORDPRESS_PLUGIN_BOILERPLATE_PLUGIN_URL` is `define()`-d twice
-in `define_constants()`. The private guard prevents a PHP fatal; the constant keeps its
-first (correct URL) value. Do not attempt to fix it — leave the block as-is and append
-new constants below it.
+- `WORDPRESS_PLUGIN_BOILERPLATE_VERSION` — hardcoded string in `define_constants()`; update it manually when bumping the version
 
 ## Kill switch
 
